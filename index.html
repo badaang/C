@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>국가발현자관리센터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0b2447;--navy2:#19376d;--teal:#0f7c8c;--teal2:#16a5b5;--amber:#f0a030;--red:#d9382c;--line:#dcdfe4;--bg:#f5f6f8;--text:#1e1e1e;--sub:#666}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;font-size:14.5px;color:var(--text);background:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+.in{width:100%;max-width:1200px;margin:0 auto;padding:0 16px;position:relative}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* 최상단 */
+.topbar{background:#f1f2f4;border-bottom:1px solid #e3e5e8;font-size:13px;color:#555}
+.topbar .in{display:flex;justify-content:space-between;align-items:center;height:36px}
+.topbar .l span{margin-right:16px}
+.topbar .l b{color:var(--red)}
+.topbar .r a{margin-left:18px}
+.topbar .r a:hover{color:var(--navy)}
+.topbar .r .zoom{margin-left:18px;display:inline-flex;gap:2px}
+.topbar .r .zoom i{font-style:normal;border:1px solid #ccc;background:#fff;width:22px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+
+/* 헤더 */
+.head{background:#fff}
+.head .in{display:flex;align-items:center;justify-content:space-between;height:96px}
+.logo{display:flex;align-items:center;gap:13px}
+.mark{width:52px;height:52px;border-radius:50%;background:var(--navy);position:relative;overflow:hidden;flex:none}
+.mark::before{content:"";position:absolute;inset:11px;border:3px solid var(--teal2);border-radius:50%}
+.mark::after{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:3px;background:var(--amber);transform:translateX(-50%) rotate(30deg)}
+.logo b{display:block;font-size:25px;font-weight:900;letter-spacing:-1px;color:var(--navy);line-height:1.15}
+.logo small{display:block;font-size:12px;letter-spacing:2.2px;color:#777;font-family:'IBM Plex Mono',monospace}
+.srch{display:flex;align-items:center;border:2px solid var(--navy);border-radius:30px;width:380px;height:46px;padding:0 6px 0 20px}
+.srch span{flex:1;color:#999;font-size:14px}
+.srch i{width:36px;height:36px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-style:normal;color:#fff;font-size:15px}
+.hot{font-size:13px;color:#777;margin-top:6px;text-align:right}
+.hot a{margin-left:10px;color:#444}
+
+/* GNB */
+.gnb{background:var(--navy);position:relative;z-index:40}
+.gnb>.in{display:flex;height:58px}
+.gnb .menu{display:flex;flex:1}
+.gnb .menu>li{flex:1;text-align:center}
+.gnb .menu>li>a{display:block;line-height:58px;color:#fff;font-size:17px;font-weight:700;transition:.2s}
+.gnb .menu>li:hover>a{background:var(--navy2);color:var(--amber)}
+.gnb .all{width:58px;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer}
+.gnb .all i{width:22px;height:2px;background:#fff}
+.mega{position:absolute;left:0;right:0;top:58px;background:#fff;box-shadow:0 12px 20px rgba(0,0,0,.08);max-height:0;overflow:hidden;transition:max-height .35s}
+@media(hover:hover) and (min-width:901px){.gnb:hover .mega{max-height:320px;border-bottom:3px solid var(--navy)}}
+.gnb.open .mega{max-height:1000px;border-bottom:3px solid var(--navy)}
+.mega .in{display:flex;padding:24px 0 26px}
+.mega .lead{width:250px;padding-right:20px;border-right:1px solid var(--line);margin-right:0}
+.mega .lead b{display:block;font-size:20px;color:var(--navy);margin-bottom:8px}
+.mega .lead p{font-size:13.5px;color:#666;line-height:1.6}
+.mega .cols{flex:1;display:flex}
+.mega .cols ul{flex:1;text-align:center;border-right:1px solid #eee}
+.mega .cols ul:last-child{border:none}
+.mega .cols li a{display:block;font-size:14.5px;color:#444;padding:6px 0}
+.mega .cols li a:hover{color:var(--teal);text-decoration:underline}
+
+/* 경보 */
+.alert{background:#fff4e3;border-bottom:1px solid #f1d7a8}
+.alert .in{display:flex;align-items:center;height:46px;gap:14px}
+.alert .lv{flex:none;background:var(--red);color:#fff;font-weight:700;font-size:14px;padding:4px 12px;border-radius:3px;display:flex;align-items:center;gap:7px}
+.alert .lv i{width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.alert .run{flex:1;overflow:hidden;white-space:nowrap;font-size:15px;color:#6b4710}
+.alert .run span{display:inline-block;padding-left:100%;animation:run 38s linear infinite}
+@keyframes run{to{transform:translateX(-100%)}}
+.alert .more{flex:none;font-size:13px;color:#8a6420;border:1px solid #e3c48c;padding:3px 10px;border-radius:3px;background:#fff}
+
+/* 메인 비주얼 */
+.visual{background:#eef1f5;padding:30px 0}
+.visual .in{display:flex;gap:20px;height:400px}
+.slider{flex:1;position:relative;border-radius:6px;overflow:hidden;color:#fff}
+.slides{display:flex;height:100%;transition:transform .8s cubic-bezier(.7,0,.3,1)}
+.slide{flex:0 0 100%;height:100%;position:relative;padding:56px 60px}
+.slide::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:44px 44px}
+.s1{background:radial-gradient(circle at 78% 40%,rgba(22,165,181,.45),transparent 40%),linear-gradient(120deg,#0b2447,#1b4a6b)}
+.s2{background:radial-gradient(circle at 80% 50%,rgba(240,160,48,.5),transparent 38%),linear-gradient(120deg,#1d1410,#4a2414)}
+.s3{background:radial-gradient(circle at 75% 45%,rgba(255,255,255,.18),transparent 40%),linear-gradient(120deg,#0f5f6b,#16a5b5)}
+.slide .k{position:relative;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:2.5px;color:rgba(255,255,255,.7)}
+.slide h2{position:relative;font-size:40px;font-weight:900;line-height:1.3;letter-spacing:-1.5px;margin:14px 0 16px}
+.slide h2 em{font-style:normal;color:var(--amber)}
+.slide p{position:relative;font-size:16px;color:rgba(255,255,255,.82);line-height:1.7}
+.slide .btn{position:relative;display:inline-block;margin-top:24px;border:1px solid rgba(255,255,255,.6);padding:10px 22px;font-size:14px;border-radius:30px}
+.slide .art{position:absolute;right:70px;top:50%;transform:translateY(-50%);width:230px;height:230px;border-radius:50%;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
+.slide .art::before{content:"";position:absolute;inset:30px;border-radius:50%;border:2px solid rgba(255,255,255,.4);animation:spin 18s linear infinite;border-top-color:var(--amber)}
+.slide .art b{font-family:'IBM Plex Mono',monospace;font-size:46px;font-weight:600;letter-spacing:2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ctrl{position:absolute;left:60px;bottom:28px;display:flex;align-items:center;gap:12px;z-index:3;font-family:'IBM Plex Mono',monospace;font-size:14px}
+.ctrl i{font-style:normal;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ctrl .bar{width:120px;height:2px;background:rgba(255,255,255,.3);position:relative}
+.ctrl .bar u{position:absolute;left:0;top:0;height:2px;background:#fff;transition:width .5s}
+
+/* 우측 현황판 */
+.status{width:360px;background:#fff;border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column}
+.status .hd{background:var(--navy);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-radius:6px 6px 0 0}
+.status .hd b{font-size:17px}
+.status .hd span{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#a9c0dd}
+.status .lst{flex:1;padding:6px 20px}
+.rift{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eef0f2}
+.rift:last-child{border:none}
+.rift .t{flex:none;width:68px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:3px 0;border-radius:3px}
+.rift .d{flex:1}
+.rift .d b{display:block;font-size:15px}
+.rift .d small{font-size:12.5px;color:#888}
+.rift .s{font-size:13px;font-weight:700}
+.t.red{background:var(--red);color:#fff}.t.yel{background:#e3c23a}.t.grn{background:#3fae66;color:#fff}.t.blu{background:#3d74c9;color:#fff}
+.s.on{color:var(--red)}.s.ok{color:#2f9a58}
+.status .ft{border-top:1px solid var(--line);display:flex}
+.status .ft a{flex:1;text-align:center;padding:12px 0;font-size:14px;color:#444;border-right:1px solid var(--line)}
+.status .ft a:last-child{border:none}
+
+/* 퀵 */
+.quick{border-bottom:1px solid var(--line);background:#fff}
+.quick .in{display:flex;padding:30px 0}
+.quick li{flex:1;text-align:center;cursor:pointer}
+.quick .ic{width:72px;height:72px;margin:0 auto 10px;border-radius:50%;background:#eef4f8;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--navy);font-size:18px;transition:.25s}
+.quick li:hover .ic{background:var(--navy);color:#fff;transform:translateY(-4px)}
+.quick li.em .ic{background:#fdeceb;color:var(--red)}
+.quick li.em:hover .ic{background:var(--red);color:#fff}
+.quick span{font-size:15px;font-weight:500;color:#333}
+
+/* 본문 블록 */
+.blk{padding:46px 0}
+.row{display:flex;gap:30px}
+.ttl{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ttl h3{font-size:22px;font-weight:700;color:#111}
+.ttl a{width:30px;height:30px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:18px;color:#666}
+
+.board{flex:1.3}
+.tabs{display:flex;gap:26px;border-bottom:2px solid #222;padding-bottom:0;margin-bottom:6px}
+.tabs button{border:none;background:none;font-family:inherit;font-size:19px;font-weight:700;color:#aaa;padding:0 0 12px;cursor:pointer;position:relative}
+.tabs button.on{color:#111}
+.tabs button.on::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:4px;background:var(--teal)}
+.list{display:none}
+.list.on{display:block}
+.list li{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #eee;font-size:15.5px;cursor:pointer}
+.list li:hover .tt{color:var(--teal);text-decoration:underline}
+.list .tt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:20px}
+.list .tt i{font-style:normal;font-size:12px;font-weight:700;color:#fff;background:var(--red);border-radius:2px;padding:1px 5px;margin-left:6px;vertical-align:2px}
+.list time{font-size:14px;color:#888;font-family:'IBM Plex Mono',monospace}
+
+.popup{width:380px}
+.pz{position:relative;height:262px;border-radius:6px;overflow:hidden}
+.pz .p{position:absolute;inset:0;padding:28px 26px;color:#fff;opacity:0;transition:opacity .8s}
+.pz .p.on{opacity:1}
+.pz .p1{background:linear-gradient(140deg,#0b2447,#16a5b5)}
+.pz .p2{background:linear-gradient(140deg,#7a2e10,#f0a030)}
+.pz .p3{background:linear-gradient(140deg,#24304a,#5d6f96)}
+.pz small{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;opacity:.8}
+.pz b{display:block;font-size:24px;line-height:1.35;margin:10px 0 10px;letter-spacing:-.5px}
+.pz p{font-size:14px;opacity:.9;line-height:1.6}
+.pz .pg{position:absolute;right:16px;bottom:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:rgba(0,0,0,.3);padding:2px 10px;border-radius:20px}
+
+/* 보도자료 카드 */
+.press{background:var(--bg)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.cards a{background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;transition:.25s}
+.cards a:hover{box-shadow:0 10px 24px rgba(0,0,0,.08);transform:translateY(-3px)}
+.cards .th{height:130px;position:relative;display:flex;align-items:flex-end;padding:14px}
+.cards .th span{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#fff;background:rgba(0,0,0,.35);padding:2px 8px;border-radius:3px}
+.cards .tx{padding:16px}
+.cards .tx b{display:block;font-size:16px;line-height:1.5;height:48px;overflow:hidden;color:#111}
+.cards .tx p{font-size:13.5px;color:#666;margin-top:8px;height:42px;overflow:hidden;line-height:1.55}
+.cards .tx time{display:block;margin-top:10px;font-size:13px;color:#999;font-family:'IBM Plex Mono',monospace}
+
+/* 발현 안내 + 조직 */
+.guide{flex:1}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.steps div{padding:22px 18px;border-right:1px solid var(--line);position:relative}
+.steps div:last-child{border:none}
+.steps em{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--teal);font-weight:600}
+.steps b{display:block;font-size:17px;margin:6px 0 8px;color:#111}
+.steps p{font-size:14px;color:#555;line-height:1.6}
+.warn{margin-top:14px;border-left:4px solid var(--amber);background:#fff8ec;padding:14px 18px;font-size:14.5px;color:#5e4415;line-height:1.6}
+.warn b{color:#a56408}
+
+.org{width:420px}
+.otab{display:flex;border:1px solid var(--line);border-bottom:none}
+.otab span{flex:1;text-align:center;padding:11px 0;font-size:14.5px;font-weight:500;color:#666;background:#f6f7f9;cursor:pointer;border-right:1px solid var(--line)}
+.otab span:last-child{border:none}
+.otab span.on{background:#fff;color:var(--navy);font-weight:700;box-shadow:inset 0 3px 0 var(--navy)}
+.pane{display:none;border:1px solid var(--line);padding:16px 18px;min-height:250px}
+.pane.on{display:block}
+.pane p.d{font-size:14px;color:#555;line-height:1.65;margin-bottom:12px}
+.sq{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sq div{border:1px solid #e8eaed;border-radius:4px;padding:9px 11px;font-size:14px}
+.sq h5{font-size:14.5px;color:var(--navy);display:flex;justify-content:space-between;margin-bottom:4px}
+.sq h5 span{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#999;font-weight:400}
+.sq li{display:flex;justify-content:space-between;color:#333;line-height:1.75}
+.sq li em{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#999}
+.sq li em.ss{color:var(--amber);font-weight:600}
+.pane table{width:100%;border-collapse:collapse;font-size:14px}
+.pane th,.pane td{padding:9px 6px;border-bottom:1px solid #eee;text-align:left}
+.pane th{background:#f6f7f9;color:#666;font-weight:500}
+
+/* 시설 */
+.fac{background:var(--bg)}
+.facs{display:grid;grid-template-columns:repeat(8,1fr);border:1px solid var(--line);background:#fff;border-radius:6px;overflow:hidden}
+.facs div{padding:22px 14px;text-align:center;border-right:1px solid var(--line);transition:.25s;cursor:default}
+.facs div:last-child{border:none}
+.facs div:hover{background:var(--navy);color:#fff}
+.facs div:hover p,.facs div:hover small{color:#cfd9e8}
+.facs small{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--teal)}
+.facs b{display:block;font-size:17px;margin:6px 0 8px}
+.facs p{font-size:13px;color:#666;line-height:1.55}
+
+/* 배너 */
+.banner{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.banner .in{display:flex;align-items:center;height:70px;gap:12px}
+.banner b{font-size:15px;color:#333;margin-right:10px}
+.banner span{flex:1;height:44px;border:1px solid #e3e5e8;display:flex;align-items:center;justify-content:center;font-size:14px;color:#666;border-radius:3px}
+
+/* 푸터 */
+footer{background:#2b2f36;color:#a6abb3;font-size:14px}
+footer .lk{border-bottom:1px solid #3b4049}
+footer .lk .in{display:flex;align-items:center;height:56px;gap:24px}
+footer .lk a{color:#e0e3e8}
+footer .lk a.pv{color:#5fd0dc;font-weight:700}
+footer .lk .staff{margin-left:auto;color:#454b55;cursor:pointer;font-size:13px}
+footer .lk .staff:hover{color:#7a828e}
+footer .fam{border:1px solid #4a505b;padding:7px 14px;font-size:13px;color:#c5cad1;width:200px;display:flex;justify-content:space-between}
+footer .bt .in{display:flex;justify-content:space-between;padding:28px 0 34px}
+footer .bt p{line-height:1.9}
+footer .bt .note{margin-top:8px;font-size:12.5px;color:#737a85}
+footer .bt .mk{text-align:right}
+footer .bt .mk b{display:block;font-size:18px;color:#fff;margin-bottom:4px}
+
+/* 모달 */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:200}
+.modal.on{display:flex}
+.modal .box{background:#fff;width:460px;border-top:5px solid var(--navy)}
+.modal .mh{padding:18px 24px;border-bottom:1px solid #eee;font-size:19px;font-weight:700;color:var(--navy)}
+.modal .mb{padding:22px 24px;font-size:15px;color:#444;line-height:1.75}
+.modal .big{font-family:'IBM Plex Mono',monospace;font-size:44px;font-weight:600;color:var(--red);margin-bottom:6px}
+.modal .mf{padding:0 24px 22px;text-align:right}
+.modal .mf button{background:var(--navy);color:#fff;border:none;font-family:inherit;font-size:14px;padding:9px 26px;cursor:pointer}
+
+/* 관제 내부망 */
+.ctl{position:fixed;inset:0;background:#04080b;color:#cfe3e6;z-index:300;display:none;overflow:auto;font-family:'IBM Plex Mono',monospace}
+.ctl.on{display:block}
+.ctl .wr{width:960px;margin:0 auto;padding:30px 0 50px}
+.ctl .hd{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1d2b31;padding-bottom:14px;margin-bottom:20px}
+.ctl .hd b{color:var(--teal2);letter-spacing:3px;font-size:16px}
+.ctl .hd span{color:#5f7a82;font-size:14px}
+.ctl .x{background:none;border:1px solid #2b3d44;color:#cfe3e6;font-family:inherit;padding:6px 14px;cursor:pointer}
+.ctl h5{font-size:13px;color:#5f7a82;letter-spacing:2px;margin:22px 0 10px}
+.ctl .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.w{display:grid;grid-template-columns:130px 1fr 60px;align-items:center;gap:14px;background:#0b1317;border:1px solid #17252b;padding:14px 16px;margin-bottom:8px}
+.w .n{font-family:'Noto Sans KR',sans-serif;font-size:15px;color:#fff}
+.w .n small{display:block;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5f7a82}
+.w .b{height:9px;background:#16242a;overflow:hidden}
+.w .b i{display:block;height:100%;transition:width 1.2s;width:0}
+.w .v{text-align:right;font-size:20px;font-weight:600}
+.log{background:#0b1317;border:1px solid #17252b;padding:14px 16px;font-size:13.5px;line-height:2;color:#9fb6bc}
+.log em{font-style:normal;color:var(--amber)}
+.log .r{color:#ff8a76}
+
+@media(max-width:900px){
+  body{font-size:14px}
+  .topbar{font-size:12px}
+  .topbar .l span:last-child,.topbar .r .zoom,.topbar .r a:nth-child(2){display:none}
+  .topbar .r a{margin-left:12px}
+  .head .in{height:66px}
+  .mark{width:40px;height:40px}
+  .mark::before{inset:8px;border-width:2px}
+  .logo b{font-size:18px}
+  .logo small{font-size:9.5px;letter-spacing:1.2px}
+  .srch,.hot{display:none}
+  .gnb>.in{height:46px;padding:0}
+  .gnb .menu{overflow-x:auto;scrollbar-width:none}
+  .gnb .menu::-webkit-scrollbar{display:none}
+  .gnb .menu>li{flex:none}
+  .gnb .menu>li>a{line-height:46px;font-size:14px;padding:0 13px}
+  .gnb .all{width:46px;flex:none}
+  .mega{top:46px}
+  .mega .in{flex-direction:column;padding:14px 16px 18px}
+  .mega .lead{width:auto;border:none;padding:0 0 10px}
+  .mega .lead b{font-size:16px;margin-bottom:0}
+  .mega .lead p{display:none}
+  .mega .cols{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+  .mega .cols ul{text-align:left;border:none;border-top:1px solid #eee;padding-top:6px}
+  .mega .cols li a{font-size:13.5px;padding:4px 0}
+  .alert .in{height:40px;gap:10px}
+  .alert .lv{font-size:12px;padding:3px 8px}
+  .alert .run{font-size:13px}
+  .alert .more{display:none}
+  .visual{padding:16px 0}
+  .visual .in{flex-direction:column;height:auto;gap:14px}
+  .slider{height:250px;flex:none}
+  .slide{padding:26px 22px}
+  .slide .k{font-size:10.5px;letter-spacing:1.5px}
+  .slide h2{font-size:23px;margin:8px 0 10px}
+  .slide p{font-size:13px}
+  .slide p br{display:none}
+  .slide .btn{display:none}
+  .slide .art{display:none}
+  .ctrl{left:22px;bottom:16px;font-size:12px}
+  .ctrl i{width:26px;height:26px}
+  .ctrl .bar{width:70px}
+  .status{width:100%}
+  .status .hd{padding:11px 16px}
+  .status .hd b{font-size:15px}
+  .status .lst{padding:2px 16px}
+  .rift{padding:9px 0;gap:10px}
+  .rift .t{width:58px;font-size:11px}
+  .rift .d b{font-size:14px}
+  .rift .d small{font-size:11.5px}
+  .rift .s{font-size:12px}
+  .status .ft a{font-size:13px;padding:10px 0}
+  .quick .in{flex-wrap:wrap;padding:16px 8px 6px}
+  .quick li{flex:0 0 25%;margin-bottom:12px}
+  .quick .ic{width:50px;height:50px;font-size:13px;margin-bottom:6px}
+  .quick span{font-size:12.5px}
+  .blk{padding:28px 0}
+  .row{flex-direction:column;gap:28px}
+  .popup,.org{width:100%}
+  .ttl{margin-bottom:12px}
+  .ttl h3{font-size:18px}
+  .ttl a{width:26px;height:26px;font-size:16px}
+  .tabs{gap:18px}
+  .tabs button{font-size:15.5px;padding-bottom:9px}
+  .list li{font-size:14px;padding:11px 0}
+  .list time{font-size:12px}
+  .pz{height:200px}
+  .pz .p{padding:22px 20px}
+  .pz b{font-size:19px}
+  .pz p{font-size:13px}
+  .cards{grid-template-columns:1fr 1fr;gap:12px}
+  .cards .th{height:84px;padding:10px}
+  .cards .tx{padding:12px}
+  .cards .tx b{font-size:14px;height:42px}
+  .cards .tx p{font-size:12.5px;height:38px}
+  .cards .tx time{font-size:11.5px}
+  .steps{grid-template-columns:1fr 1fr}
+  .steps div{padding:16px 14px;border-bottom:1px solid var(--line)}
+  .steps div:nth-child(2n){border-right:none}
+  .steps b{font-size:15px}
+  .steps p{font-size:13px}
+  .warn{font-size:13px;padding:12px 14px}
+  .otab span{font-size:13px;padding:9px 0}
+  .pane{padding:14px;min-height:0}
+  .pane p.d{font-size:13px}
+  .sq div{font-size:13px}
+  .facs{grid-template-columns:repeat(4,1fr)}
+  .facs div{padding:14px 6px;border-bottom:1px solid var(--line)}
+  .facs div:nth-child(4n){border-right:none}
+  .facs b{font-size:14.5px;margin:4px 0}
+  .facs p{font-size:11.5px}
+  .facs small{font-size:9.5px;letter-spacing:.5px}
+  .banner .in{flex-wrap:wrap;height:auto;padding:14px 16px;gap:8px}
+  .banner b{width:100%;font-size:14px}
+  .banner span{flex:1 1 45%;height:38px;font-size:12.5px}
+  footer{font-size:12.5px}
+  footer .lk .in{flex-wrap:wrap;height:auto;padding:14px 16px;gap:8px 14px}
+  footer .fam{width:auto}
+  footer .bt .in{flex-direction:column;gap:14px;padding:20px 16px 26px}
+  footer .bt .mk{text-align:left}
+  footer .bt .mk b{font-size:15px}
+  .modal .box{width:92%}
+  .modal .mh{font-size:17px;padding:15px 18px}
+  .modal .mb{font-size:14px;padding:18px}
+  .ctl .wr{width:auto;padding:20px 16px 40px}
+  .ctl .hd b{font-size:13px;letter-spacing:1px}
+  .ctl .hd span{display:none}
+  .ctl .grid{grid-template-columns:1fr;gap:0}
+  .w{grid-template-columns:90px 1fr 44px;padding:11px 12px;gap:10px}
+  .w .n{font-size:14px}
+  .w .v{font-size:17px}
+  .log{font-size:12px}
+}
+@media(max-width:420px){
+  .facs{grid-template-columns:1fr 1fr}
+  .facs div:nth-child(2n){border-right:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="in">
+    <div class="l"><span>오늘 <b id="today">2046.12.02</b></span><span>서울 · 맑음 -3℃</span></div>
+    <div class="r"><a href="#">로그인</a><a href="#">회원가입</a><a href="#">사이트맵</a><a href="#">ENGLISH</a><span class="zoom"><i>+</i><i>-</i></span></div>
+  </div>
+</div>
+
+<div class="head">
+  <div class="in">
+    <a class="logo" href="#"><div class="mark"></div><div><b>국가발현자관리센터</b><small>NATIONAL AWAKENED CENTER</small></div></a>
+    <div>
+      <div class="srch"><span>검색어를 입력해 주세요</span><i>⌕</i></div>
+      <div class="hot">인기 검색어<a href="#">#대피소</a><a href="#">#발현 신고</a><a href="#">#면회 신청</a><a href="#">#SS급 가이드</a></div>
+    </div>
+  </div>
+</div>
+
+<nav class="gnb">
+  <div class="in">
+    <ul class="menu">
+      <li><a href="#">균열 정보</a></li>
+      <li><a href="#">발현자 안내</a></li>
+      <li><a href="#">가이드 안내</a></li>
+      <li><a href="#">알림마당</a></li>
+      <li><a href="#">정보공개</a></li>
+      <li><a href="#">센터 소개</a></li>
+    </ul>
+    <div class="all"><i></i><i></i><i></i></div>
+  </div>
+  <div class="mega">
+    <div class="in">
+      <div class="lead"><b>전체 메뉴</b><p>국가발현자관리센터는 발현자의 등록과 관리, 균열 대응을 통해 시민과 발현자 모두의 안전을 지킵니다.</p></div>
+      <div class="cols">
+        <ul><li><a href="#">실시간 균열 현황</a></li><li><a href="#">균열 위험도 기준</a></li><li><a href="#">대피소 찾기</a></li><li><a href="#">시민 행동 요령</a></li><li><a href="#">균열 신고</a></li></ul>
+        <ul><li><a href="#">발현 의심 신고</a></li><li><a href="#">발현자 등록</a></li><li><a href="#">등급 측정 안내</a></li><li><a href="#">생체워치 안내</a></li><li><a href="#">위기 발현 청소년 보호</a></li></ul>
+        <ul><li><a href="#">가이드 등록</a></li><li><a href="#">매칭률 측정</a></li><li><a href="#">전담 가이드 제도</a></li><li><a href="#">개인 가이드 계약 신고</a></li><li><a href="#">가이딩동 이용 안내</a></li></ul>
+        <ul><li><a href="#">공지사항</a></li><li><a href="#">보도자료</a></li><li><a href="#">채용 정보</a></li><li><a href="#">입찰 공고</a></li><li><a href="#">자주 묻는 질문</a></li></ul>
+        <ul><li><a href="#">사전정보공표</a></li><li><a href="#">정보공개청구</a></li><li><a href="#">균열 대응 통계</a></li><li><a href="#">예산 및 결산</a></li></ul>
+        <ul><li><a href="#">인사말</a></li><li><a href="#">연혁</a></li><li><a href="#">조직 및 직원 안내</a></li><li><a href="#">센터 시설</a></li><li><a href="#">찾아오시는 길</a></li></ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="alert">
+  <div class="in">
+    <span class="lv"><i></i>균열 경보</span>
+    <div class="run"><span>[진행 중] 마포구 상암동 일대 레드 균열 발생 — 반경 2km 통제, 인근 주민은 상암 월드컵경기장 지하 대피소로 이동해 주십시오. &nbsp;&nbsp;|&nbsp;&nbsp; [진행 중] 성북구 정릉동 옐로 균열 — 정릉로 일부 구간 차량 통제 &nbsp;&nbsp;|&nbsp;&nbsp; [해제] 강서구 마곡동 그린 균열 진압 완료</span></div>
+    <a class="more" href="#">경보 상세</a>
+  </div>
+</div>
+
+<div class="visual">
+  <div class="in">
+    <div class="slider">
+      <div class="slides" id="slides">
+        <div class="slide s1">
+          <div class="k">NATIONAL AWAKENED CENTER</div>
+          <h2>발현자와 시민이<br><em>함께 안전한</em> 도시</h2>
+          <p>센티넬과 가이드의 등록과 관리, 균열 대응까지 <br>국가발현자관리센터가 책임집니다.</p>
+          <a class="btn" href="#">센터 소개 바로가기</a>
+          <div class="art"><b>NAC</b></div>
+        </div>
+        <div class="slide s2">
+          <div class="k">WINTER RIFT WARNING</div>
+          <h2>겨울철 균열 발생<br><em>평년 대비 32% 증가</em></h2>
+          <p>균열 경보가 울리면 가까운 지하철역이나 지정 대피소로 <br>침착하게 이동해 주십시오.</p>
+          <a class="btn" href="#">시민 행동 요령 보기</a>
+          <div class="art"><b>RED</b></div>
+        </div>
+        <div class="slide s3">
+          <div class="k">NEWS · 2046.12.01</div>
+          <h2>국내 최초<br><em style="color:#fff3c4">SS급 가이드</em> 등록 확인</h2>
+          <p>센터는 신규 등록된 SS급 가이드를 특수대응팀에 <br>전담 배정할 예정입니다.</p>
+          <a class="btn" href="#">보도자료 보기</a>
+          <div class="art"><b>SS</b></div>
+        </div>
+      </div>
+      <div class="ctrl"><i id="prev">‹</i><span id="cur">01</span><div class="bar"><u id="bar" style="width:33%"></u></div><span>03</span><i id="next">›</i></div>
+    </div>
+
+    <div class="status">
+      <div class="hd"><b>실시간 균열 현황</b><span id="clock">--:--:--</span></div>
+      <div class="lst">
+        <div class="rift"><span class="t red">RED</span><div class="d"><b>마포구 상암동</b><small>특수대응팀 투입 · 반경 2km 통제</small></div><span class="s on">진행 중</span></div>
+        <div class="rift"><span class="t yel">YELLOW</span><div class="d"><b>성북구 정릉동</b><small>대응팀 2개 조 투입</small></div><span class="s on">진행 중</span></div>
+        <div class="rift"><span class="t grn">GREEN</span><div class="d"><b>강서구 마곡동</b><small>진압 완료 · 통제 해제</small></div><span class="s ok">해제</span></div>
+        <div class="rift"><span class="t blu">BLUE</span><div class="d"><b>송파구 문정동</b><small>진압 완료</small></div><span class="s ok">해제</span></div>
+      </div>
+      <div class="ft"><a href="#" data-m="shelter">대피소 찾기</a><a href="#" data-m="call">균열 신고</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="quick">
+  <ul class="in">
+    <li class="em" data-m="call"><div class="ic">119</div><span>균열 신고</span></li>
+    <li data-m="shelter"><div class="ic">SH</div><span>대피소 안내</span></li>
+    <li data-m="reg"><div class="ic">ID</div><span>발현자 등록</span></li>
+    <li data-m="measure"><div class="ic">LV</div><span>등급 측정 예약</span></li>
+    <li data-m="guide"><div class="ic">GD</div><span>가이드 지원</span></li>
+    <li data-m="visit"><div class="ic">VS</div><span>면회 신청</span></li>
+    <li data-m="faq"><div class="ic">Q&amp;A</div><span>자주 묻는 질문</span></li>
+    <li data-m="map"><div class="ic">MAP</div><span>찾아오시는 길</span></li>
+  </ul>
+</div>
+
+<div class="blk">
+  <div class="in row">
+    <div class="board">
+      <div class="tabs" id="tabs"><button class="on">공지사항</button><button>보도자료</button><button>채용</button><button>입찰</button></div>
+      <ul class="list on">
+        <li><span class="tt">겨울철 균열 발생 증가에 따른 시민 행동 요령 안내<i>N</i></span><time>2046.12.02</time></li>
+        <li><span class="tt">관사 면회실 운영 시간 변경 안내 (평일 14:00~20:00)</span><time>2046.11.27</time></li>
+        <li><span class="tt">2047년도 상반기 발현자 정기 등급 재측정 일정 공고</span><time>2046.11.18</time></li>
+        <li><span class="tt">진정제 처방 기준 개정 안내 (의료동)</span><time>2046.11.04</time></li>
+        <li><span class="tt">개인 가이드 계약 신고 의무화 시행 안내</span><time>2046.10.21</time></li>
+      </ul>
+      <ul class="list">
+        <li><span class="tt">센터, 국내 최초 SS급 가이드 등록 확인<i>N</i></span><time>2046.12.01</time></li>
+        <li><span class="tt">특수대응팀, 은평구 블랙 균열 사상자 없이 진압</span><time>2046.10.30</time></li>
+        <li><span class="tt">위기 발현 청소년 보호 프로그램 확대 운영</span><time>2046.09.12</time></li>
+        <li><span class="tt">지역 지부 가이딩동 증축 완료</span><time>2046.08.25</time></li>
+        <li><span class="tt">2046년 상반기 균열 대응 통계 발표</span><time>2046.07.14</time></li>
+      </ul>
+      <ul class="list">
+        <li><span class="tt">2047년도 관제동 관제요원(일반직) 공개 채용<i>N</i></span><time>2046.11.30</time></li>
+        <li><span class="tt">의료동 발현자 전담 간호사 경력 채용</span><time>2046.11.15</time></li>
+        <li><span class="tt">등록 가이드 센터 소속 전환 상시 모집</span><time>상시</time></li>
+      </ul>
+      <ul class="list">
+        <li><span class="tt">훈련동 내열 훈련실 바닥재 교체 공사 입찰 공고</span><time>2046.11.22</time></li>
+        <li><span class="tt">생체워치 3세대 단말기 구매 입찰 공고</span><time>2046.10.08</time></li>
+      </ul>
+    </div>
+    <div class="popup">
+      <div class="ttl"><h3>팝업존</h3><a href="#">+</a></div>
+      <div class="pz" id="pz">
+        <div class="p p1 on"><small>NOTICE</small><b>발현이 의심되면<br>혼자 견디지 마세요</b><p>가까운 센터 지부나 대표전화 1588-0000으로 연락하면 담당자가 안전하게 안내해 드립니다.</p></div>
+        <div class="p p2"><small>CAMPAIGN</small><b>균열 경보가 울리면<br>지하로 대피하세요</b><p>지하철역과 지정 대피소 위치를 미리 확인해 두십시오.</p></div>
+        <div class="p p3"><small>GUIDE</small><b>개인 가이드 계약<br>신고가 의무화되었습니다</b><p>2046년 10월부터 모든 개인 가이드 계약은 가이드관리부에 신고해야 합니다.</p></div>
+        <span class="pg" id="pzn">1 / 3</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="blk press">
+  <div class="in">
+    <div class="ttl"><h3>보도자료</h3><a href="#">+</a></div>
+    <div class="cards">
+      <a href="#"><div class="th" style="background:linear-gradient(135deg,#0b2447,#16a5b5)"><span>2046.12.01</span></div><div class="tx"><b>센터, 국내 최초 SS급 가이드 등록 확인… 특수대응팀 전담 배정 예정</b><p>센터 설립 이후 처음으로 SS급 가이드가 등록되었다. 개인정보 보호를 위해 신상은 공개하지 않는다.</p><time>홍보담당관실</time></div></a>
+      <a href="#"><div class="th" style="background:linear-gradient(135deg,#1d1410,#f0a030)"><span>2046.10.30</span></div><div class="tx"><b>특수대응팀, 은평구 블랙 균열 사상자 없이 진압</b><p>특수대응팀 1조와 3조가 합동 투입되어 4시간 만에 균열을 봉쇄했다.</p><time>특수대응팀</time></div></a>
+      <a href="#"><div class="th" style="background:linear-gradient(135deg,#24304a,#7c8db3)"><span>2046.09.12</span></div><div class="tx"><b>위기 발현 청소년 보호 프로그램 확대 운영</b><p>위기 발현을 겪은 미성년 발현자를 위한 심리 상담과 숙소 지원을 늘린다.</p><time>발현자관리부</time></div></a>
+      <a href="#"><div class="th" style="background:linear-gradient(135deg,#0f5f6b,#7fd0c5)"><span>2046.08.25</span></div><div class="tx"><b>지역 지부 가이딩동 증축 완료</b><p>부산과 대구 지부의 접촉 가이딩실이 두 배로 늘어난다.</p><time>시설관리과</time></div></a>
+    </div>
+  </div>
+</div>
+
+<div class="blk">
+  <div class="in row">
+    <div class="guide">
+      <div class="ttl"><h3>발현이 의심될 때</h3><a href="#">+</a></div>
+      <div class="steps">
+        <div><em>STEP 01</em><b>증상 확인</b><p>감각이 갑자기 예민해지거나 두통과 불면이 이어지고, 설명할 수 없는 현상이 몸 주변에서 일어납니다.</p></div>
+        <div><em>STEP 02</em><b>신고 및 상담</b><p>가까운 센터 지부나 대표전화로 연락하면 담당자가 안전하게 안내해 드립니다.</p></div>
+        <div><em>STEP 03</em><b>등급 측정</b><p>측정동에서 등급과 계열을 판정하고, 가이드라면 매칭률을 측정합니다.</p></div>
+        <div><em>STEP 04</em><b>등록과 관리</b><p>정식 등록 후 센티넬에게는 생체워치가 지급되며 3개월간 기초 통제 훈련을 받습니다.</p></div>
+      </div>
+      <div class="warn"><b>위기 발현 주의</b> · 생명이나 신체가 위험한 순간 능력이 한꺼번에 터져 나오는 경우가 있습니다. 주변에서 이런 일이 생기면 가까이 다가가지 말고 즉시 신고해 주십시오.</div>
+    </div>
+    <div class="org">
+      <div class="ttl"><h3>조직 안내</h3><a href="#">+</a></div>
+      <div class="otab" id="otab"><span class="on">특수대응팀</span><span>진압팀</span><span>가이드관리부</span><span>관제동</span></div>
+      <div class="pane on">
+        <p class="d">S급 이상 센티넬로 꾸려진 핵심 전투 부서입니다. 레드 이상의 균열에 투입됩니다. 팀장 오승빈.</p>
+        <div class="sq">
+          <div><h5>1조 <span>BLACK</span></h5><ul><li>설승혁 <em class="ss">SS</em></li><li>박효준 <em>S</em></li><li>강주연 <em>S</em></li></ul></div>
+          <div><h5>2조 <span>RED</span></h5><ul><li>이수혁 <em>S</em></li><li>홍현민 <em>S</em></li><li>황윤 <em>S</em></li></ul></div>
+          <div><h5>3조 <span>BLACK</span></h5><ul><li>공영원 <em class="ss">SS</em></li><li>심대현 <em>S</em></li><li>고우진 <em>S</em></li></ul></div>
+          <div><h5>4조 <span>RED</span></h5><ul><li>허강민 <em>S</em></li><li>장우찬 <em>S</em></li><li>노현승 <em>S</em></li></ul></div>
+        </div>
+      </div>
+      <div class="pane"><p class="d">폭주하거나 폭주가 임박한 센티넬을 제압합니다. 생체워치에 빨간불이 켜지면 관제동의 명령으로 즉시 출동합니다.</p><table><tr><th>직위</th><th>성명</th><th>비고</th></tr><tr><td>팀장</td><td>연강우</td><td>S급 센티넬</td></tr></table></div>
+      <div class="pane"><p class="d">가이드의 등록과 전담 배정, 가이딩 일정 관리, 개인 가이드 계약 신고를 맡습니다. 가이딩 권고와 경고 통보도 이 부서에서 발송합니다.</p><table><tr><th>업무</th><th>연락처</th></tr><tr><td>전담 가이드 배정</td><td>02-000-1201</td></tr><tr><td>개인 가이드 계약 신고</td><td>02-000-1205</td></tr></table></div>
+      <div class="pane"><p class="d">등록 센티넬 전원의 생체워치 상태와 위치, 전국 균열 감지 정보를 24시간 3교대로 모니터링합니다. 워치가 주황색으로 바뀌면 경보가 울리고 담당 관제요원이 연락합니다.</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="blk fac">
+  <div class="in">
+    <div class="ttl"><h3>센터 시설 안내</h3><a href="#">+</a></div>
+    <div class="facs">
+      <div><small>MAIN</small><b>본관</b><p>민원실과 등록 창구, 행정 부서</p></div>
+      <div><small>CONTROL</small><b>관제동</b><p>생체워치와 균열 24시간 감시</p></div>
+      <div><small>MEASURE</small><b>측정동</b><p>등급 판정과 매칭률 측정</p></div>
+      <div><small>GUIDING</small><b>가이딩동</b><p>공용·1인 가이딩실 운영</p></div>
+      <div><small>MEDICAL</small><b>의료동</b><p>발현자 전용 병원, 진정제 처방</p></div>
+      <div><small>TRAINING</small><b>훈련동</b><p>능력 통제·내열 훈련</p></div>
+      <div><small>RESIDENCE</small><b>관사</b><p>고등급 센티넬 숙소, 면회실</p></div>
+      <div><small>ISOLATION</small><b>격리동</b><p>일반인 출입 제한 구역</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="banner">
+  <div class="in"><b>관련 기관</b><span>국가재난안전본부</span><span>균열연구원</span><span>발현자인권위원회</span><span>국립발현의학원</span><span>지역 지부 안내</span></div>
+</div>
+
+<footer>
+  <div class="lk">
+    <div class="in"><a class="pv" href="#">개인정보처리방침</a><a href="#">이용약관</a><a href="#">저작권정책</a><a href="#">발현자 인권 정책</a><a href="#">찾아오시는 길</a><span class="fam">지역 지부 바로가기 <em>▾</em></span><span class="staff" id="staff">관제 내부망</span></div>
+  </div>
+  <div class="bt">
+    <div class="in">
+      <div>
+        <p>(03300) 서울특별시 은평구 진관외로 46 국가발현자관리센터 &nbsp;|&nbsp; 대표전화 1588-0000 &nbsp;|&nbsp; 균열 신고 119</p>
+        <p>민원실 운영 평일 09:00~18:00 &nbsp;|&nbsp; 면회실 운영 평일 14:00~20:00</p>
+        <p>COPYRIGHT © 2046 NATIONAL AWAKENED CENTER. ALL RIGHTS RESERVED.</p>
+        <p class="note">이 누리집은 캐릭터챗 세계관 속 가상의 기관 누리집이며 실제 기관과 관련이 없습니다.</p>
+      </div>
+      <div class="mk"><b>국가발현자관리센터</b><span class="mono">NAC · SEOUL HQ</span></div>
+    </div>
+  </div>
+</footer>
+
+<div class="modal" id="modal"><div class="box"><div class="mh" id="mt"></div><div class="mb"><div id="mx"></div><span id="mp"></span></div><div class="mf"><button id="mc">확인</button></div></div></div>
+
+<div class="ctl" id="ctl">
+  <div class="wr">
+    <div class="hd"><b>NAC CONTROL · INTERNAL</b><span id="cclock"></span><button class="x" id="cx">닫기</button></div>
+    <div class="grid">
+      <div>
+        <h5>특수대응팀 3조 · 생체워치</h5>
+        <div class="w"><div class="n">공영원<small>SS · 번(燔)</small></div><div class="b"><i style="background:#e3c23a" data-w="52"></i></div><div class="v" style="color:#e3c23a">52</div></div>
+        <div class="w"><div class="n">심대현<small>S · 뇌(雷)</small></div><div class="b"><i style="background:#ff7a2f" data-w="74"></i></div><div class="v" style="color:#ff7a2f">74</div></div>
+        <div class="w"><div class="n">고우진<small>S · 중(重)</small></div><div class="b"><i style="background:#ff7a2f" data-w="79"></i></div><div class="v" style="color:#ff7a2f">79</div></div>
+        <h5>특수대응팀 1조 · 생체워치</h5>
+        <div class="w"><div class="n">설승혁<small>SS · 빙(氷)</small></div><div class="b"><i style="background:#e3c23a" data-w="44"></i></div><div class="v" style="color:#e3c23a">44</div></div>
+      </div>
+      <div>
+        <h5>관제 기록</h5>
+        <div class="log">
+          12.02 03:14 &nbsp;고우진 · 주황 단계 진입 · 공용 가이딩실 대기 2순위<br>
+          12.02 01:40 &nbsp;심대현 · 진정제 추가 처방 요청 · <em>의료동 보류</em><br>
+          12.01 22:05 &nbsp;공영원 · 개인 가이드 가이딩 완료 · 노랑 복귀<br>
+          12.01 09:00 &nbsp;가이드관리부 · <em>3조 팀 전담 가이드 배정 확정 (SS)</em><br>
+          12.01 09:00 &nbsp;공영원 기록 확인 · <span class="r">여성 가이드 배정 불가 / 접촉 수준 제한</span><br>
+          11.28 18:22 &nbsp;심대현 · 가이딩 권고 미이행 · <span class="r">경고 2회</span><br>
+          10.30 15:47 &nbsp;은평구 블랙 균열 · 1조·3조 합동 투입 · 봉쇄 완료
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function tick(){const t=new Date().toTimeString().slice(0,8);document.getElementById('clock').textContent=t;document.getElementById('cclock').textContent='2046.12.02 '+t}
+tick();setInterval(tick,1000);
+
+document.querySelector('.gnb .all').onclick=()=>document.querySelector('.gnb').classList.toggle('open');
+const sl=document.getElementById('slides');let cur=0,tm;
+function go(i){cur=(i+3)%3;sl.style.transform=`translateX(-${cur*100}%)`;document.getElementById('cur').textContent='0'+(cur+1);document.getElementById('bar').style.width=((cur+1)*33.33)+'%'}
+function auto(){clearInterval(tm);tm=setInterval(()=>go(cur+1),5500)}
+document.getElementById('prev').onclick=()=>{go(cur-1);auto()};
+document.getElementById('next').onclick=()=>{go(cur+1);auto()};auto();
+
+const ps=[...document.querySelectorAll('.pz .p')];let pc=0;
+setInterval(()=>{ps[pc].classList.remove('on');pc=(pc+1)%3;ps[pc].classList.add('on');document.getElementById('pzn').textContent=(pc+1)+' / 3'},4000);
+
+const tb=[...document.querySelectorAll('#tabs button')],ls=[...document.querySelectorAll('.list')];
+tb.forEach((b,i)=>b.onclick=()=>{tb.forEach(x=>x.classList.remove('on'));ls.forEach(x=>x.classList.remove('on'));b.classList.add('on');ls[i].classList.add('on')});
+const ot=[...document.querySelectorAll('#otab span')],pn=[...document.querySelectorAll('.pane')];
+ot.forEach((s,i)=>s.onclick=()=>{ot.forEach(x=>x.classList.remove('on'));pn.forEach(x=>x.classList.remove('on'));s.classList.add('on');pn[i].classList.add('on')});
+
+const md=document.getElementById('modal'),mt=document.getElementById('mt'),mx=document.getElementById('mx'),mp=document.getElementById('mp');
+const M={
+  call:['균열 신고','<div class="big">119</div>','공간이 일그러지거나 이상한 소리가 들리면 가까이 가지 말고 즉시 신고해 주십시오. 신고는 센터 관제동으로 바로 연결됩니다.'],
+  shelter:['대피소 안내','','균열 경보가 울리면 가장 가까운 지하철역이나 지정 대피소로 이동해 주십시오. 현재 마포구 상암동 일대는 상암 월드컵경기장 지하 대피소가 운영 중입니다.'],
+  reg:['발현자 등록','','발현이 확인되면 본관 1층 등록 창구 또는 지역 지부에서 등록할 수 있습니다. 등록 후 측정동에서 등급 판정을 받습니다.'],
+  measure:['등급 측정 예약','','정기 등급 재측정은 1년에 한 번입니다. 2047년도 상반기 재측정 일정은 공지사항에서 확인해 주십시오.'],
+  guide:['가이드 지원','','가이드로 발현하신 분은 센터 소속과 개인 계약 중 하나를 선택할 수 있습니다. 개인 가이드 계약은 가이드관리부에 반드시 신고해야 합니다.'],
+  visit:['면회 신청','','관사 거주 센티넬의 가족과 지인은 사전 신청 후 관사 1층 면회실에서 면회할 수 있습니다. 1회 최대 2시간이며, 센티넬의 생체워치가 빨간색으로 바뀌면 면회가 즉시 중단됩니다.'],
+  faq:['자주 묻는 질문','','Q. 생체워치는 스스로 풀 수 있나요?<br>A. 아닙니다. 의료동이나 관제동의 승인을 받아야만 분리할 수 있습니다.']
+};
+document.querySelectorAll('[data-m]').forEach(el=>el.onclick=e=>{e.preventDefault();const k=el.dataset.m;if(k==='map'){window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});return}
+  const v=M[k];mt.textContent=v[0];mx.innerHTML=v[1];mp.innerHTML=v[2];md.classList.add('on')});
+document.getElementById('mc').onclick=()=>md.classList.remove('on');
+md.onclick=e=>{if(e.target===md)md.classList.remove('on')};
+
+const ctl=document.getElementById('ctl');
+document.getElementById('staff').onclick=()=>{ctl.classList.add('on');setTimeout(()=>document.querySelectorAll('.w .b i').forEach(i=>i.style.width=i.dataset.w+'%'),100)};
+document.getElementById('cx').onclick=()=>{ctl.classList.remove('on');document.querySelectorAll('.w .b i').forEach(i=>i.style.width=0)};
+</script>
+</body>
+</html>
